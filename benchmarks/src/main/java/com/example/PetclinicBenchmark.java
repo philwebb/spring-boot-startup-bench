@@ -61,6 +61,16 @@ public class PetclinicBenchmark {
 	}
 
 	@Benchmark
+	public void fatJar15rc1(Basic150RC1State state) throws Exception {
+		state.run();
+	}
+
+	@Benchmark
+	public void fatJar150(Basic150State state) throws Exception {
+		state.run();
+	}
+
+	@Benchmark
 	public void noverify(NoVerifyState state) throws Exception {
 		state.run();
 	}
@@ -71,19 +81,55 @@ public class PetclinicBenchmark {
 	}
 
 	@Benchmark
+	public void exploded150rc1JarMain(Main150RC1State state) throws Exception {
+		state.run();
+	}
+
+
+	@Benchmark
+	public void exploded150JarMain(Main150State state) throws Exception {
+		state.run();
+	}
+
+
+	@Benchmark
 	public void devtoolsRestart(ExplodedDevtoolsState state) throws Exception {
 		state.run();
 	}
 
 	public static void main(String[] args) throws Exception {
-		BasicState state = new BasicState();
+		Main150State state = new Main150State();
 		state.run();
 	}
 
 	@State(Scope.Benchmark)
 	public static class BasicState extends ProcessLauncherState {
 		public BasicState() {
-			super("target", "-jar", jarFile("com.example:petclinic:jar:boot:1.4.2"), "--server.port=0");
+			super("target", "-jar", jarFile("com.example:petclinic:jar:boot:1.0.0"), "--server.port=0");
+		}
+
+		@TearDown(Level.Iteration)
+		public void stop() throws Exception {
+			super.after();
+		}
+	}
+
+	@State(Scope.Benchmark)
+	public static class Basic150RC1State extends ProcessLauncherState {
+		public Basic150RC1State() {
+			super("target", "-jar", jarFile("com.example:petclinic:jar:boot150rc1:1.0.0"), "--server.port=0");
+		}
+
+		@TearDown(Level.Iteration)
+		public void stop() throws Exception {
+			super.after();
+		}
+	}
+
+	@State(Scope.Benchmark)
+	public static class Basic150State extends ProcessLauncherState {
+		public Basic150State() {
+			super("target", "-jar", jarFile("com.example:petclinic:jar:boot150:1.0.0"), "--server.port=0");
 		}
 
 		@TearDown(Level.Iteration)
@@ -95,7 +141,7 @@ public class PetclinicBenchmark {
 	@State(Scope.Benchmark)
 	public static class NoVerifyState extends ProcessLauncherState {
 		public NoVerifyState() {
-			super("target", "-noverify", "-jar", jarFile("com.example:petclinic:jar:boot:1.4.2"), "--server.port=0");
+			super("target", "-noverify", "-jar", jarFile("com.example:petclinic:jar:boot:1.0.0"), "--server.port=0");
 		}
 
 		@TearDown(Level.Iteration)
@@ -109,7 +155,35 @@ public class PetclinicBenchmark {
 		public MainState() {
 			super("target/demo", "-cp", CLASSPATH,
 					"org.springframework.samples.petclinic.PetClinicApplication", "--server.port=0");
-			unpack("target/demo", jarFile("com.example:petclinic:jar:boot:1.4.2"));
+			unpack("target/demo", jarFile("com.example:petclinic:jar:boot:1.0.0"));
+		}
+
+		@TearDown(Level.Iteration)
+		public void stop() throws Exception {
+			super.after();
+		}
+	}
+
+	@State(Scope.Benchmark)
+	public static class Main150RC1State extends ProcessLauncherState {
+		public Main150RC1State() {
+			super("target/demo", "-cp", CLASSPATH,
+					"org.springframework.samples.petclinic.PetClinicApplication", "--server.port=0");
+			unpack("target/demo", jarFile("com.example:petclinic:jar:boot150rc1:1.0.0"));
+		}
+
+		@TearDown(Level.Iteration)
+		public void stop() throws Exception {
+			super.after();
+		}
+	}
+
+	@State(Scope.Benchmark)
+	public static class Main150State extends ProcessLauncherState {
+		public Main150State() {
+			super("target/demo", "-cp", CLASSPATH,
+					"org.springframework.samples.petclinic.PetClinicApplication", "--server.port=0");
+			unpack("target/demo", jarFile("com.example:petclinic:jar:boot150:1.0.0"));
 		}
 
 		@TearDown(Level.Iteration)
@@ -123,7 +197,7 @@ public class PetclinicBenchmark {
 
 		public ExplodedDevtoolsState() {
 			super("target/demo", "/BOOT-INF/classes/.restart",
-					jarFile("com.example:petclinic:jar:boot:1.4.2"), "-cp",
+					jarFile("com.example:petclinic:jar:boot:1.0.0"), "-cp",
 					CLASSPATH, "-Dspring.devtools.livereload.enabled=false",
 					"-Dspring.devtools.restart.pollInterval=100", "-Dspring.devtools.restart.quietPeriod=10",
 					"org.springframework.samples.petclinic.PetClinicApplication", "--server.port=0");

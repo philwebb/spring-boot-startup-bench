@@ -74,7 +74,7 @@ public class JsaBenchmark {
 		public void setup() throws Exception {
 			Process started = exec(
 					"-Xshare:off -XX:DumpLoadedClassList=app.classlist -cp $CLASSPATH:"
-							+ jarFile("com.example:petclinic:jar:thin:1.4.2"),
+							+ jarFile("com.example:petclinic:jar:thin:1.0.0"),
 					"org.springframework.samples.petclinic.PetClinicApplication",
 					"--server.port=0");
 			output(started.getInputStream(), "Started");
@@ -119,7 +119,7 @@ public class JsaBenchmark {
 
 		public ThinMainState() {
 			super("target", "-cp",
-					"$CLASSPATH:" + jarFile("com.example:petclinic:jar:thin:1.4.2"),
+					"$CLASSPATH:" + jarFile("com.example:petclinic:jar:thin:1.0.0"),
 					"org.springframework.samples.petclinic.PetClinicApplication",
 					"--server.port=0");
 			environment();
@@ -127,7 +127,7 @@ public class JsaBenchmark {
 
 		private void environment() {
 			Process started = exec("-jar",
-					jarFile("com.example:petclinic:jar:thin:1.4.2"), "--thin.classpath");
+					jarFile("com.example:petclinic:jar:thin:1.0.0"), "--thin.classpath");
 			try {
 				Collection<String> lines = FileUtils
 						.readAllLines(started.getInputStream());

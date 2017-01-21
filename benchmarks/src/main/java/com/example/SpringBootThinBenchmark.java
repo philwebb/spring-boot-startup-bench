@@ -95,7 +95,7 @@ public class SpringBootThinBenchmark {
 	@State(Scope.Benchmark)
 	public static class PetclinicThinState extends ProcessLauncherState {
 		public PetclinicThinState() {
-			super("target", "-jar", jarFile("com.example:petclinic:jar:thin:1.4.2"), "--server.port=0");
+			super("target", "-jar", jarFile("com.example:petclinic:jar:thin:1.0.0"), "--server.port=0");
 		}
 
 		@TearDown(Level.Iteration)

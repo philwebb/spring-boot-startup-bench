@@ -42,26 +42,40 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
+import java.io.File;
+
 @Measurement(iterations = 5)
 @Warmup(iterations = 1)
 @Fork(value = 2, warmups = 0)
 @BenchmarkMode(Mode.AverageTime)
-public class ShadedBenchmark {
+public class SpringBoot150RC1Benchmark {
+
+	private static final String CLASSPATH = "BOOT-INF/classes" + File.pathSeparator + "BOOT-INF/lib/*";
 
 	@Benchmark
-	public void shaded(ShadedState state) throws Exception {
+	public void fatJar(BasicState state) throws Exception {
 		state.run();
 	}
 
 	@Benchmark
-	public void explodedShadedMain(ShadedMainState state) throws Exception {
+	public void explodedJarLauncher(BootState state) throws Exception {
+		state.run();
+	}
+
+	@Benchmark
+	public void explodedJarMain(MainState state) throws Exception {
+		state.run();
+	}
+
+	public static void main(String[] args) throws Exception {
+		BootState state = new BootState();
 		state.run();
 	}
 
 	@State(Scope.Benchmark)
-	public static class ShadedState extends ProcessLauncherState {
-		public ShadedState() {
-			super("target", "-jar", jarFile("com.example:petclinic:jar:shade:1.0.0"), "--server.port=0");
+	public static class BasicState extends ProcessLauncherState {
+		public BasicState() {
+			super(".", "-jar", jarFile("com.example:demo:jar:150rc1:0.0.1-SNAPSHOT"), "--server.port=0");
 		}
 
 		@TearDown(Level.Iteration)
@@ -71,11 +85,24 @@ public class ShadedBenchmark {
 	}
 
 	@State(Scope.Benchmark)
-	public static class ShadedMainState extends ProcessLauncherState {
-		public ShadedMainState() {
-			super("target/demo", "-cp", ".", "org.springframework.samples.petclinic.PetClinicApplication",
+	public static class BootState extends ProcessLauncherState {
+		public BootState() {
+			super("target/demo", "-cp", ".", "org.springframework.boot.loader.JarLauncher", "--server.port=0");
+			unpack("target/demo", jarFile("com.example:demo:jar:150rc1:0.0.1-SNAPSHOT"));
+		}
+
+		@TearDown(Level.Iteration)
+		public void stop() throws Exception {
+			super.after();
+		}
+	}
+
+	@State(Scope.Benchmark)
+	public static class MainState extends ProcessLauncherState {
+		public MainState() {
+			super("target/demo", "-cp", CLASSPATH, "com.example.DemoApplication",
 					"--server.port=0");
-			unpack("target/demo", jarFile("com.example:petclinic:jar:shade:1.0.0"));
+			unpack("target/demo", jarFile("com.example:demo:jar:150rc1:0.0.1-SNAPSHOT"));
 		}
 
 		@TearDown(Level.Iteration)

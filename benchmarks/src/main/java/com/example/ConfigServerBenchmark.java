@@ -54,6 +54,16 @@ public class ConfigServerBenchmark {
 	private static final String CLASSPATH = "BOOT-INF/classes" + File.pathSeparator + "BOOT-INF/lib/*";
 
 	@Benchmark
+	public void fatJar150(FatJar150State state) throws Exception {
+		state.run();
+	}
+
+	@Benchmark
+	public void fatJar150RC1(FatJar150RC1State state) throws Exception {
+		state.run();
+	}
+
+	@Benchmark
 	public void fatJar142(FatJar142State state) throws Exception {
 		state.run();
 	}
@@ -82,6 +92,30 @@ public class ConfigServerBenchmark {
 			}
 		} finally {
 			state.stop();
+		}
+	}
+
+	@State(Scope.Benchmark)
+	public static class FatJar150State extends ProcessLauncherState {
+		public FatJar150State() {
+			super("target", "-jar", jarFile("com.example:configserver:jar:150:0.0.1-SNAPSHOT"), "--server.port=0");
+		}
+
+		@TearDown(Level.Iteration)
+		public void stop() throws Exception {
+			super.after();
+		}
+	}
+
+	@State(Scope.Benchmark)
+	public static class FatJar150RC1State extends ProcessLauncherState {
+		public FatJar150RC1State() {
+			super("target", "-jar", jarFile("com.example:configserver:jar:150rc1:0.0.1-SNAPSHOT"), "--server.port=0");
+		}
+
+		@TearDown(Level.Iteration)
+		public void stop() throws Exception {
+			super.after();
 		}
 	}
 
